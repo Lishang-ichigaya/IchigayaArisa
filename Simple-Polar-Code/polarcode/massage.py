@@ -1,17 +1,26 @@
 import numpy as np
-from numpy.random import randint
+from numpy.random import rand
 
 
-class InputMessage:
+class Message:
     def __init__(self, K):
         """
-        入力メッセージの生成 (メッセージの長さ)
+        メッセージの初期化 
+        K:メッセージの長さ
         """
         self.K = K                                      
         # メッセージのビット数
-        self.message = randint(0, 2, np.power(2, K))
+        self.message = np.zeros(K)
         # メッセージ
+    
+    def MakeMessage(self, P=0.5):
+        """
+        メッセージの作成
+        P=0.5:0の出現確率
+        """
+        for i in range(self.K):
+            self.message[i] = 0 if rand() > P else 1
 
-
-#tttmessage = InputMessage(5)
-#print(tttmessage.message)
+tttmessage = Message(32)
+tttmessage.MakeMessage()
+print(tttmessage.message)

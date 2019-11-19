@@ -34,5 +34,17 @@ def GetPermutationMatrix(M):
     matrixB = np.concatenate([matrixEven, matrixOdd]).T
     return matrixB
 
-tt = GetGeneratorMatrix(3)
-print(tt)
+class CodeWorde:
+    def __init__(self, N):
+        """
+        符号語の初期化 
+        N:符号長
+        """
+        self.N =N                                      
+        # メッセージのビット数
+        self.codeword = np.zeros(N)        
+
+#tt = GetGeneratorMatrix(3)
+#print(tt)
+#ttt = CodeWorde(16)
+#print(ttt.codeword)
