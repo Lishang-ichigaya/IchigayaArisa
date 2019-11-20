@@ -8,11 +8,11 @@ class Message:
         メッセージの初期化 
         K:メッセージの長さ
         """
-        self.K = K                                      
+        self.K = K
         # メッセージのビット数
-        self.message = np.zeros(K)
+        self.message = np.zeros(K, dtype=np.uint8)
         # メッセージ
-    
+
     def MakeMessage(self, P=0.5):
         """
         メッセージの作成
@@ -21,6 +21,7 @@ class Message:
         for i in range(self.K):
             self.message[i] = 0 if rand() > P else 1
 
-tttmessage = Message(32)
+
+tttmessage = Message(11)
 tttmessage.MakeMessage()
 print(tttmessage.message)
