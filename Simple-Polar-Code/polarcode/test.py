@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def GetPermutationMatrix(M):
     """
     偶数番目を前に、奇数番目を後ろに置き換える行列を得る
@@ -12,14 +13,15 @@ def GetPermutationMatrix(M):
     [0,0,0,1]  [0,0,0,1]
     """
     if M == 1:
-        return np.identity(1, dtype = np.uint8)
-    matrixI_2=np.matrix([[1, 0], [0, 1]])
-    matrixR=np.matrix([[1, 0], [0, 1]])
+        return np.identity(1, dtype=np.uint8)
+    matrixI_2 = np.matrix([[1, 0], [0, 1]])
+    matrixR = np.matrix([[1, 0], [0, 1]])
     for i in range(M-1):
-        matrixR=np.kron(matrixI_2, matrixR)
-    matrixEven, matrixOdd=matrixR[::2], matrixR[1::2]
-    matrixR=np.concatenate([matrixEven, matrixOdd]).T
+        matrixR = np.kron(matrixI_2, matrixR)
+    matrixEven, matrixOdd = matrixR[::2], matrixR[1::2]
+    matrixR = np.concatenate([matrixEven, matrixOdd]).T
     return matrixR
+
 
 I_2 = np.array([[1, 0], [0, 1]])
 F = np.array([[1, 0], [1, 1]])
@@ -51,5 +53,11 @@ print(G_8)
 #G_8 = np.concatenate([G_8,G_8])
 #G_8 = np.concatenate([G_8,G_8],axis=1)
 
-G_8 = np.kron(np.identity(2),G_8)
+G_8 = np.kron(np.identity(2), G_8)
 print(G_8)
+
+ih = 0
+if ih % 2 == 1:
+    print("aaa")
+else:
+    print("bbb")

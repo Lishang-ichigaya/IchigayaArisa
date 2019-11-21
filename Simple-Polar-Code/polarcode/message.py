@@ -22,6 +22,6 @@ class Message:
             self.message[i] = 0 if rand() > P else 1
 
 
-tttmessage = Message(11)
+tttmessage = Message(4)
 tttmessage.MakeMessage()
 print(tttmessage.message)
