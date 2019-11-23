@@ -14,7 +14,7 @@ class BSC:
             output = np.insert(output, i, tmp)
         return output
 
-
+"""
 NNN = 12
 message = np.array([1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1])
 print("送信メッセージ:", end="")
@@ -35,3 +35,4 @@ for i in range(times):
             count += 1
 
 print(count/(times*NNN) )
+"""

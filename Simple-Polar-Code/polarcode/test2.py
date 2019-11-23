@@ -1,4 +1,5 @@
 import numpy as np
+from decimal import Decimal
 
 
 def CalculateLR(N, chaneloutput_y, i, estimatedcodeword_u):
@@ -10,7 +11,7 @@ def CalculateLR(N, chaneloutput_y, i, estimatedcodeword_u):
     estimatedcodeword_u:現在までに推定された符号語ビット列
     """
     if N == 1:
-        return 0.89/0.11 if chaneloutput_y == np.array([1]) else 0.11/0.89
+        return Decimal(0.11/0.89) if chaneloutput_y == np.array([1]) else Decimal(0.89/0.11)
 
     #print("N = ", N, ", i = ", i)
 
@@ -50,7 +51,7 @@ def CalculateLR(N, chaneloutput_y, i, estimatedcodeword_u):
     if i % 2 == 0:
         LR1 = CalculateLR(int(N/2), y_1, int(j/2), hat_u1)
         LR2 = CalculateLR(int(N/2), y_2, int(j/2), hat_u2)
-        print("e, ","N = ", N, ", i = ", i,LR1 ,", ", LR2)
+        #print("e, ","N = ", N, ", i = ", i,LR1 ,", ", LR2)
         LR = (
             (LR1 * LR2 + 1)
             /
@@ -66,7 +67,7 @@ def CalculateLR(N, chaneloutput_y, i, estimatedcodeword_u):
         )"""
         LR1 = CalculateLR(int(N/2), y_1, int(j/2), hat_u1)
         LR2 = CalculateLR(int(N/2), y_2, int(j/2), hat_u2)
-        print("o, ","N = ", N, ", i = ", i,LR1 ,", ", LR2)
+        #print("o, ","N = ", N, ", i = ", i,LR1 ,", ", LR2)
         if hat_u_i == 0:
             LR = LR1 * LR2
         else:
@@ -74,18 +75,18 @@ def CalculateLR(N, chaneloutput_y, i, estimatedcodeword_u):
         # LR=0.2
     return LR
 
-
+"""
 N = 8
-output = np.array([0, 0, 1, 0, 1, 0, 0, 0], dtype=np.uint8)
-i = 2
-hat_u = np.array([0,0], dtype=np.uint8)
+output = np.array([0,0,1,0,0,0,0,0], dtype=np.uint8)
+i = 0
+hat_u = np.array([], dtype=np.uint8)
 
 print("受信系列:\t\t", output)
 print("i-i番目までの復号系列:\t", hat_u)
 LR = CalculateLR(N, output, i, hat_u)
-print(LR)
-
-
+print("LR: " ,LR)
+print("u_",i," = ", 0 if LR>=1 else 1)
+"""
 """
         test1 = np.array([1,0,0,1])
         test2 = np.array([1,0,1,0])

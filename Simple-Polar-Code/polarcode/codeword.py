@@ -1,4 +1,5 @@
 import numpy as np
+from test2 import CalculateLR
 
 
 def GetGeneratorMatrix(N):
@@ -42,13 +43,14 @@ def GetPermutationMatrix(M):
     return matrixR
 
 
-def GetInformationIndex(K, path="sort_I_0.11.dat"):
+def GetInformationIndex(K, path="sort_I_5_0.11_20.dat"):
     """
     情報ビットに対応するインデックス集合を得る
     K:メッセージの長さ
     """
     informationindex = np.loadtxt(path, dtype=np.uint8)
-    # 相互情報量orバタチャリアパラメータ順に、インデックスを並べ替えたものを外部で用意しておく
+    informationindex = np.flip(informationindex)
+    # 相互情報量の小さい順に、インデックスを並べ替えたものを外部で用意しておく
     # print(informationindex[:K])
     return np.sort(informationindex[:K])
 
@@ -63,8 +65,16 @@ class CodeWorde:
         # メッセージのビット数
         self.codeword = np.zeros(N, dtype=np.uint8)
 
-    def MakeCodeworde(self, K, message, informationindex):
+    def MakeCodeworde(self, K, message,path):
+        """
+        符号語を生成
+        K: メッセージ長
+        message: メッセージ
+        path: インデックスを小さい順に並べたファイルのパス
+        """
         j = 0
+        informationindex = GetInformationIndex(K,path)
+        #print(informationindex)
         for i in range(self.N):
             if i == informationindex[j]:
                 self.codeword[i] = message[j]
@@ -73,21 +83,30 @@ class CodeWorde:
                     j = K-1
             else:
                 self.codeword[i] = 0
-        # print("生成行列にかけるもの：")
+        print("生成行列にかけるもの： ", self.codeword)
         # print(self.codeword)
-        self.codeword = np.dot(self.codeword, GetGeneratorMatrix(self.N)) % 2
+        self.codeword = np.matmul(self.codeword, GetGeneratorMatrix(self.N)) % 2
 
-    def DecodeOutput(self, N, chaneloutput):
+    def DecodeOutput(self, K, N, chaneloutput):
         estimatedcodeword = np.array([], dtype=np.uint8)
+        informationindex = GetInformationIndex(K)
+        j = 0
         for i in range(N):
-            hat_ui = self.EstimateCodeword_ibit(N, chaneloutput, i, estimatedcodeword)
+            if i == informationindex[j]:
+                hat_ui = self.EstimateCodeword_ibit(N, chaneloutput, i, estimatedcodeword)
+                j += 1
+            else:
+                hat_ui = 0
+            #hat_ui = self.EstimateCodeword_ibit(N, chaneloutput, i, estimatedcodeword)
             estimatedcodeword = np.insert(estimatedcodeword, i, hat_ui)
+            
         return estimatedcodeword
 
     def EstimateCodeword_ibit(self, N, chaneloutput, i, estimatedcodeword):
-        L = self.CalculateLR(N, chaneloutput, i, estimatedcodeword)
-        return 0 if L>=1 else 1
-    
+        LR = CalculateLR(N, chaneloutput, i, estimatedcodeword)
+        return 0 if LR >= 1 else 1
+
+
     def CalculateLR(self, N, chaneloutput_y, i, estimatedcodeword_u):
         y_1 = chaneloutput_y[:int(N/2)]
         y_2 = chaneloutput_y[int(N/2):]
@@ -97,10 +116,12 @@ class CodeWorde:
 # print(tt)
 # ttt = CodeWorde(16)
 # print(ttt.codeword)
+
+
 """
 KKK=4
 NNN=8
-message=np.array([0,1,1,0], dtype = np.uint8)
+message=np.array([1,0,0,1], dtype = np.uint8)
 print("メッセージ：", end = "")
 print(message)
 
@@ -124,13 +145,20 @@ print(testcodeword.codeword)
 
 #ttt = GetGeneratorMatrix(8)
 # print(ttt)
+
 """
 
-
-N=8
-message = np.array([0,0,1,0,1,0,0,0])
+"""
+K = 4
+N = 8
+message =  np.array([0,0,0,1,0,0,0,1])
+codeword = np.array([0,1,0,1,0,1,0,1])
+output =   np.array([0,1,1,1,0,1,0,1])
 test = CodeWorde(N)
-estimated =  test.DecodeOutput(N, message)
+estimated = test.DecodeOutput(K, N, output)
 
-print(message)
-print(estimated)
+print("ほぼメッセージ:\t\t",message)
+print("符号語: \t\t", codeword)
+print("通信路出力: \t\t", output)
+print("メッセージの推定値: \t",estimated)
+"""
