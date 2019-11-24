@@ -1,5 +1,5 @@
 import numpy as np
-from test2 import CalculateLR
+from CaliculateLR import CalculateLR
 
 
 def GetGeneratorMatrix(N):
@@ -43,15 +43,16 @@ def GetPermutationMatrix(M):
     return matrixR
 
 
-def GetInformationIndex(K, path="sort_I_5_0.11_20.dat"):
+def GetInformationIndex(K, path):
     """
     情報ビットに対応するインデックス集合を得る
     K:メッセージの長さ
     """
-    informationindex = np.loadtxt(path, dtype=np.uint8)
+    informationindex = np.loadtxt(path, dtype=np.uint16)
+    #N = 65536 までは耐えられるようにunit16を使う
+    #unit8 だとN=256までしか使えない
     informationindex = np.flip(informationindex)
     # 相互情報量の小さい順に、インデックスを並べ替えたものを外部で用意しておく
-    # print(informationindex[:K])
     return np.sort(informationindex[:K])
 
 
@@ -79,17 +80,26 @@ class CodeWorde:
             if i == informationindex[j]:
                 self.codeword[i] = message[j]
                 j += 1
-                if j > K-1:
+                if j > K-1:        #jが範囲を超えないように調整
                     j = K-1
             else:
                 self.codeword[i] = 0
-        print("生成行列にかけるもの： ", self.codeword)
+        print(j)
+        print("メッセージもどき： \t", self.codeword)
         # print(self.codeword)
-        self.codeword = np.matmul(self.codeword, GetGeneratorMatrix(self.N)) % 2
+        self.codeword = np.dot(self.codeword, GetGeneratorMatrix(self.N)) % 2
+        self.codeword = self.codeword.A1
+        #arrayで返す
 
-    def DecodeOutput(self, K, N, chaneloutput):
+    def DecodeOutput(self, K, N, chaneloutput,path):
+        """
+        符号語推定値を通信路出力から推定する
+        K: メッセージ長
+        N: 符号長
+        chaneloutput: 通信路出力
+        """
         estimatedcodeword = np.array([], dtype=np.uint8)
-        informationindex = GetInformationIndex(K)
+        informationindex = GetInformationIndex(K, path)
         j = 0
         for i in range(N):
             if i == informationindex[j]:
@@ -99,18 +109,36 @@ class CodeWorde:
                 hat_ui = 0
             #hat_ui = self.EstimateCodeword_ibit(N, chaneloutput, i, estimatedcodeword)
             estimatedcodeword = np.insert(estimatedcodeword, i, hat_ui)
-            
-        return estimatedcodeword
+        
+        self.codeword = estimatedcodeword
+        #return estimatedcodeword
 
     def EstimateCodeword_ibit(self, N, chaneloutput, i, estimatedcodeword):
+        """
+        符号語のibit目を求める
+        """
         LR = CalculateLR(N, chaneloutput, i, estimatedcodeword)
         return 0 if LR >= 1 else 1
 
+    def DecodeMessage(self, K ,path):
+        """
+        メッセージを符号語から復元
+        K: メッセージ長
+        path: インデックスを小さい順に並べたファイルのパス
+        """
+        informationindex =np.sort(GetInformationIndex(K,path)[:K])
+        j = 0
+        message = np.array([],dtype=np.uint8)
 
-    def CalculateLR(self, N, chaneloutput_y, i, estimatedcodeword_u):
-        y_1 = chaneloutput_y[:int(N/2)]
-        y_2 = chaneloutput_y[int(N/2):]
-        return 1.9
+        for i in range(self.N):
+            if i == informationindex[j]:
+                message_j = self.codeword[i] 
+                message = np.insert(message,j,message_j)
+                j += 1
+                if j > K-1:
+                    j = K-1
+        return message
+
 
 # tt = GetGeneratorMatrix(3)
 # print(tt)
@@ -118,47 +146,5 @@ class CodeWorde:
 # print(ttt.codeword)
 
 
-"""
-KKK=4
-NNN=8
-message=np.array([1,0,0,1], dtype = np.uint8)
-print("メッセージ：", end = "")
-print(message)
-
-abv=GetInformationIndex(KKK)
-print("情報ビットの位置：", end = "")
-print(abv)
-
-print("生成行列：")
-print(GetGeneratorMatrix(NNN))
-
-# print("並べ替え行列")
-# print(GetPermutationMatrix(3))
-
-testcodeword=CodeWorde(NNN)
-
-testcodeword.MakeCodeworde(KKK, message, GetInformationIndex(KKK))
-
-print("符号語：")
-print(testcodeword.codeword)
-
-
-#ttt = GetGeneratorMatrix(8)
-# print(ttt)
-
-"""
-
-"""
-K = 4
-N = 8
-message =  np.array([0,0,0,1,0,0,0,1])
-codeword = np.array([0,1,0,1,0,1,0,1])
-output =   np.array([0,1,1,1,0,1,0,1])
-test = CodeWorde(N)
-estimated = test.DecodeOutput(K, N, output)
-
-print("ほぼメッセージ:\t\t",message)
-print("符号語: \t\t", codeword)
-print("通信路出力: \t\t", output)
-print("メッセージの推定値: \t",estimated)
-"""
+if __name__ == "__main__":
+    GetInformationIndex(128,"sort_I_9_0.11_20.dat")

@@ -20,6 +20,8 @@ class Message:
         """
         for i in range(self.K):
             self.message[i] = 0 if rand() > P else 1
+    
+
 
 """
 tttmessage = Message(3)
