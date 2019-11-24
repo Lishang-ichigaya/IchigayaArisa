@@ -1,6 +1,6 @@
 import numpy as np
 from CaliculateLR import CalculateLR
-
+from decimal import Decimal
 
 def GetGeneratorMatrix(N):
     """
@@ -65,13 +65,15 @@ class CodeWorde:
         self.N = N
         # メッセージのビット数
         self.codeword = np.zeros(N, dtype=np.uint8)
+        self.LRmartix = np.array([])
 
-    def MakeCodeworde(self, K, message,path):
+    def MakeCodeworde(self, K, message,path, checker=True):
         """
         符号語を生成
         K: メッセージ長
         message: メッセージ
         path: インデックスを小さい順に並べたファイルのパス
+        checker: メッセージもどきを表示するか否か
         """
         j = 0
         informationindex = GetInformationIndex(K,path)
@@ -84,9 +86,8 @@ class CodeWorde:
                     j = K-1
             else:
                 self.codeword[i] = 0
-        print(j)
-        print("メッセージもどき： \t", self.codeword)
-        # print(self.codeword)
+        if checker == True:
+            print("メッセージもどき： \t", self.codeword)
         self.codeword = np.dot(self.codeword, GetGeneratorMatrix(self.N)) % 2
         self.codeword = self.codeword.A1
         #arrayで返す
@@ -100,6 +101,7 @@ class CodeWorde:
         """
         estimatedcodeword = np.array([], dtype=np.uint8)
         informationindex = GetInformationIndex(K, path)
+        self.LRmartix = np.full((N ,  int(np.log2(N))+1  ), Decimal("-1"))
         j = 0
         for i in range(N):
             if i == informationindex[j]:
@@ -117,7 +119,7 @@ class CodeWorde:
         """
         符号語のibit目を求める
         """
-        LR = CalculateLR(N, chaneloutput, i, estimatedcodeword)
+        LR = CalculateLR(N, chaneloutput, i, estimatedcodeword, self.LRmartix, 0)
         return 0 if LR >= 1 else 1
 
     def DecodeMessage(self, K ,path):
