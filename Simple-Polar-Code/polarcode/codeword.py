@@ -65,7 +65,6 @@ class CodeWorde:
         self.N = N
         # メッセージのビット数
         self.codeword = np.zeros(N, dtype=np.uint8)
-        self.LRmartix = np.array([])
 
     def MakeCodeworde(self, K, message,path, checker=True):
         """
@@ -77,7 +76,6 @@ class CodeWorde:
         """
         j = 0
         informationindex = GetInformationIndex(K,path)
-        #print(informationindex)
         for i in range(self.N):
             if i == informationindex[j]:
                 self.codeword[i] = message[j]
@@ -101,25 +99,25 @@ class CodeWorde:
         """
         estimatedcodeword = np.array([], dtype=np.uint8)
         informationindex = GetInformationIndex(K, path)
-        self.LRmartix = np.full((N ,  int(np.log2(N))+1  ), Decimal("-1"))
+        LRmatrix = np.full((N ,  int(np.log2(N))+1  ), Decimal("-1"))
+        #LRの値を格納する配列
         j = 0
         for i in range(N):
             if i == informationindex[j]:
-                hat_ui = self.EstimateCodeword_ibit(N, chaneloutput, i, estimatedcodeword)
+                hat_ui = self.EstimateCodeword_ibit(N, chaneloutput, i, estimatedcodeword, LRmatrix)
                 j += 1
             else:
                 hat_ui = 0
-            #hat_ui = self.EstimateCodeword_ibit(N, chaneloutput, i, estimatedcodeword)
             estimatedcodeword = np.insert(estimatedcodeword, i, hat_ui)
         
         self.codeword = estimatedcodeword
-        #return estimatedcodeword
+        
 
-    def EstimateCodeword_ibit(self, N, chaneloutput, i, estimatedcodeword):
+    def EstimateCodeword_ibit(self, N, chaneloutput, i, estimatedcodeword, LRmatrix):
         """
         符号語のibit目を求める
         """
-        LR = CalculateLR(N, chaneloutput, i, estimatedcodeword, self.LRmartix, 0)
+        LR = CalculateLR(N, chaneloutput, i, estimatedcodeword, LRmatrix, 0)
         return 0 if LR >= 1 else 1
 
     def DecodeMessage(self, K ,path):

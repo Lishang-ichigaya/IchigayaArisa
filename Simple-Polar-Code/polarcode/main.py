@@ -24,7 +24,7 @@ if __name__ == '__main__':
         if sys.argv[1] == "ber":
             eroorcount = 0
             frameerrorcout = 0
-            kaisu = 100
+            kaisu = 10
 
             start = time.time()
             for i in range(kaisu):
@@ -50,7 +50,7 @@ if __name__ == '__main__':
                       0 if np.count_nonzero(error) == 0 else 1)
             end = time.time()
 
-            print("送信:", N, "復号誤り:", eroorcount)
+            print("送信:", K*kaisu, "復号誤り:", eroorcount)
             print("FER: ", frameerrorcout/kaisu)
             print("BER: ", eroorcount/(K*kaisu))
             print("実行時間: ", end-start)
